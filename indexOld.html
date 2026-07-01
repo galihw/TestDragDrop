@@ -71,6 +71,10 @@
 <body>
 	
 	<div class ="bg" id="bg">
+		<div class="garisH" id="garisH1"></div>
+		<div class="garisH" id="garisH2"></div>
+		<div class="garisV" id="garisV1"></div>
+		<div class="garisV" id="garisV2"></div>
 		<div class="areaDrop" id="areaDrop"></div>
 		<div class="btn" id="btn"></div>
 	</div>
@@ -78,6 +82,10 @@
 		const myBG = document.getElementById('bg');
 		const btn = document.getElementById('btn');
 		const areaDrop = document.getElementById('areaDrop');
+		const garisH1 = document.getElementById('garisH1');
+		const garisH2 = document.getElementById('garisH2');
+		const garisV1 = document.getElementById('garisV1');
+		const garisV2 = document.getElementById('garisV2');
 		bg.style.backgroundImage = "url(bg.png)";
 		let lebarJendela = window.innerWidth;
 		let tinggiJendela = window.innerHeight;
@@ -89,6 +97,10 @@
 		var scl = 1;
 		btn.x = 0; btn.y = 0; btn.w = btn.offsetWidth; btn.h = btn.offsetHeight;
 		areaDrop.x = 200; areaDrop.y = 200; areaDrop.w = areaDrop.offsetWidth; areaDrop.h = areaDrop.offsetHeight;
+		garisH1.x = 0; garisH1.y = 200;
+		garisH1.x = 0; garisH2.y = 300;
+		garisV1.x = 200; garisV1.y = 0;
+		garisV2.x = 300; garisV2.y = 0;
 		function XYbenda(){
 			lebarJendela = window.innerWidth;
 			tinggiJendela = window.innerHeight;
@@ -100,6 +112,25 @@
 			btn.style.top = ''+(btn.y)+'px';
 			areaDrop.style.left = ''+(areaDrop.x)+'px';
 			areaDrop.style.top = ''+(areaDrop.y)+'px';
+			
+			garisV1.x = areaDrop.x;
+			garisV1.y = 0;
+			garisV2.x = areaDrop.x+areaDrop.w;
+			garisV1.y = 0;
+			garisH1.x = 0;
+			garisH1.y = areaDrop.y;
+			garisH2.x = 0;
+			garisH2.y = areaDrop.y+areaDrop.h;
+			
+			
+			garisH1.style.left = ''+(garisH1.x)+'px';
+			garisH1.style.top = ''+(garisH1.y)+'px';
+			garisH2.style.left = ''+(garisH2.x)+'px';
+			garisH2.style.top = ''+(garisH2.y)+'px';
+			garisV1.style.left = ''+(garisV1.x)+'px';
+			garisV1.style.top = ''+(garisV1.y)+'px';
+			garisV2.style.left = ''+(garisV2.x)+'px';
+			garisV2.style.top = ''+(garisV2.y)+'px';
 		}
 		
 		XYbenda(); // mengatur posisi x dan y
@@ -119,59 +150,57 @@
 				selectedEl = null;
             }
         }
-		function setupDraggable(el,mc,mcdrop) {
+		function AksiDrop(){
+			const isDiAtasArea = isOverDropArea(xKoordinat, yKoordinat, areaDrop);
+		}
+		function setupDraggable(el,mc) {
 			var xmax = (mc.offsetWidth-el.offsetWidth);
 			var ymax = (mc.offsetHeight-el.offsetHeight);
 			var xmin = 0;
 			var ymin = 0;
+			console.log(xmin,xmax,ymin,ymax);
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 			let startX=0, startY=0, initialX=0, initialY=0;
 			let newX=0, newY=0;
 
             el.addEventListener('mousedown', dragMouseDown);
-            el.addEventListener('touchstart', dragMouseDown, { passive: false });
-			
+            el.addEventListener('touchstart', dragTouchStart, { passive: false });
 			var ff = false;
             function dragMouseDown(e) {
                 e.preventDefault();
                 selectElement(el);
-				if(e.type==="touchstart"){
-					startX = e.touches[0].clientX;
-					startY = e.touches[0].clientY;
-					initialX = el.offsetLeft;
-					initialY = el.offsetTop;
-					document.addEventListener('touchend', dragMouseUp);
-					document.addEventListener('touchmove', dragMouseMove, { passive: false });
-				}else{
-					startX = e.clientX;
-					startY = e.clientY;
-					initialX = el.offsetLeft;
-					initialY = el.offsetTop;
-					document.addEventListener('mouseup', dragMouseUp);
-					document.addEventListener('mousemove', dragMouseMove);
-				}
+				startX = e.clientX;
+				startY = e.clientY;
+				initialX = el.offsetLeft;
+				initialY = el.offsetTop;
+                document.addEventListener('mouseup', closeDragElement);
+                document.addEventListener('mousemove', elementDrag);
             }
 
-            function dragMouseMove(e) {
+            function dragTouchStart(e) {
+                selectElement(el);
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+				initialX = el.offsetLeft;
+				initialY = el.offsetTop;
+                document.addEventListener('touchend', closeDragElement);
+                document.addEventListener('touchmove', elementTouchDrag, { passive: false });
+            }
+
+            function elementDrag(e) {
                 e.preventDefault();
-				let deltaX=0;
-				let deltaY=0;
-				if(e.type==="touchstart"){
-					deltaX = (e.touches[0].clientX - startX) / scl;
-					deltaY = (e.touches[0].clientY - startY) / scl;
-				}else{
-					deltaX = (e.clientX - startX) / scl;
-					deltaY = (e.clientY - startY) / scl;
-				}
+				let deltaX = (e.clientX - startX) / scl;
+				let deltaY = (e.clientY - startY) / scl;
 				newX = initialX + deltaX;
 				newY = initialY + deltaY;
 				newX = Math.max(xmin,Math.min(xmax,newX));
 				newY = Math.max(ymin,Math.min(ymax,newY));
-				el.x = newX;
-				el.y = newY;
+				btn.x = newX;
+				btn.y = newY;
 				el.style.left = newX + "px";
 				el.style.top = newY + "px";
-				ff = newX >= mcdrop.x-el.w/2 &&	newX <= mcdrop.x+mcdrop.w-el.w/2 && newY >= mcdrop.y-el.h/2 && newY <= mcdrop.y+mcdrop.h-el.h/2;
+				ff = newX >= areaDrop.x-el.w/2 &&	newX <= areaDrop.x+areaDrop.w-el.w/2 && newY >= areaDrop.y-el.h/2 && newY <= areaDrop.y+areaDrop.h-el.h/2;
 				if(ff){
 					el.classList.remove('terseleksi');
 					el.classList.add('dropbenar');
@@ -180,19 +209,43 @@
 					el.classList.remove('dropbenar');
 				}
             }
-			
-            function dragMouseUp() {
-                document.removeEventListener('mouseup', dragMouseUp);
-                document.removeEventListener('mousemove', dragMouseMove);
-                document.removeEventListener('touchend', dragMouseUp);
-                document.removeEventListener('touchmove', dragMouseMove);
-				CekDrop();
+
+            function elementTouchDrag(e) {
+                e.preventDefault();
+				let deltaX = (e.touches[0].clientX - startX) / scl;
+				let deltaY = (e.touches[0].clientY - startY) / scl;
+				newX = initialX + deltaX;
+				newY = initialY + deltaY;
+				newX = Math.max(xmin,Math.min(xmax,newX));
+				newY = Math.max(ymin,Math.min(ymax,newY));
+				btn.x = newX;
+				btn.y = newY;
+				el.style.left = newX + "px";
+				el.style.top = newY + "px";
+				ff = newX >= areaDrop.x-el.w/2 &&	newX <= areaDrop.x+areaDrop.w-el.w/2 && newY >= areaDrop.y-el.h/2 && newY <= areaDrop.y+areaDrop.h-el.h/2;
+				if(ff){
+					el.classList.remove('terseleksi');
+					el.classList.add('dropbenar');
+				}else{
+					el.classList.add('terseleksi');
+					el.classList.remove('dropbenar');
+				}
+            }
+
+            function closeDragElement() {
+                document.removeEventListener('mouseup', closeDragElement);
+                document.removeEventListener('mousemove', elementDrag);
+                document.removeEventListener('touchend', closeDragElement);
+                document.removeEventListener('touchmove', elementTouchDrag);
+				CekDrop(newX, newY, areaDrop);
 				UnselectElement(el);
             }
-			function CekDrop() {
+			function CekDrop(x, y, dropElement) {
 				XYbenda();
-				if(ff && selectedEl){
-					console.log("benar");
+				//ff = x >= areaDrop.x-el.w/2 &&	x <= areaDrop.x+areaDrop.w-el.w/2 && y >= areaDrop.y-el.h/2 && y <= areaDrop.y+areaDrop.h-el.h/2;
+				if(ff){
+					el.classList.remove('terseleksi');
+					el.classList.add('dropbenar');
 				}
 				
 			}
@@ -202,7 +255,7 @@
 	<script>
 		// seleksi objek yang mau di drag
 		//setupDraggable(namaobj,namaBG);
-		setupDraggable(btn,myBG,areaDrop);
+		setupDraggable(btn,myBG);
 	</script>
 	<script>
 		
@@ -214,7 +267,7 @@
 
 		function UbahWindow(){
 			XYbenda();
-			setupDraggable(btn,myBG,areaDrop);
+			setupDraggable(btn,myBG);
 		}
 		function ZoomAll(){
 			lebarJendela = window.innerWidth;
