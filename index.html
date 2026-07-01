@@ -136,8 +136,8 @@
                 e.preventDefault();
                 selectElement(el);
 				if(e.type==="touchstart"){
-					startX = e.touches[0].clientX;
-					startY = e.touches[0].clientY;
+					startX = e.targetTouches[0].clientX;
+					startY = e.targetTouches[0].clientY;
 					initialX = el.offsetLeft;
 					initialY = el.offsetTop;
 					document.addEventListener('touchend', dragMouseUp);
@@ -157,8 +157,8 @@
 				let deltaX=0;
 				let deltaY=0;
 				if(e.type==="touchstart"){
-					deltaX = (e.touches[0].clientX - startX) / scl;
-					deltaY = (e.touches[0].clientY - startY) / scl;
+					deltaX = (e.targetTouches[0].clientX - startX) / scl;
+					deltaY = (e.targetTouches[0].clientY - startY) / scl;
 				}else{
 					deltaX = (e.clientX - startX) / scl;
 					deltaY = (e.clientY - startY) / scl;
